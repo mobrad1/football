@@ -39,14 +39,7 @@ class RegisteredUserController extends Controller
             'position' => ['required', 'string', 'in:GK,DEF,MID,FWD'],
             'self_rating' => ['required', 'integer', 'min:1', 'max:100'],
             'xp_cost' => ['required', 'integer', 'min:1', 'max:100'],
-            'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
         ]);
-
-        // Handle photo upload
-        $photoPath = null;
-        if ($request->hasFile('photo')) {
-            $photoPath = $request->file('photo')->store('player-photos', 'public');
-        }
 
         $user = User::create([
             'name' => $request->name,
@@ -57,7 +50,6 @@ class RegisteredUserController extends Controller
             'self_rating' => $request->self_rating,
             'xp_cost' => $request->xp_cost,
             'status' => 'free',
-            'photo' => $photoPath,
         ]);
 
         event(new Registered($user));
@@ -84,19 +76,12 @@ class RegisteredUserController extends Controller
             'position' => ['required', 'string', 'in:GK,DEF,MID,FWD'],
             'self_rating' => ['required', 'integer', 'min:1', 'max:100'],
             'xp_cost' => ['required', 'integer', 'min:1', 'max:100'],
-            'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
         ]);
 
         if ($validator->fails()) {
             return redirect()->route('register')
                 ->withErrors($validator)
                 ->withInput();
-        }
-
-        // Handle photo upload
-        $photoPath = null;
-        if (isset($registrationData['photo']) && $registrationData['photo'] instanceof UploadedFile) {
-            $photoPath = $registrationData['photo']->store('player-photos', 'public');
         }
 
         $user = User::create([
@@ -108,7 +93,6 @@ class RegisteredUserController extends Controller
             'self_rating' => $registrationData['self_rating'],
             'xp_cost' => $registrationData['xp_cost'],
             'status' => 'free',
-            'photo' => $photoPath,
             'payment_status' => 'paid',
             'payment_reference' => Session::get('payment_reference'),
         ]);
@@ -116,9 +100,6 @@ class RegisteredUserController extends Controller
         event(new Registered($user));
 
         Auth::login($user);
-
-        // Clear session data
-        Session::forget(['registration_data', 'payment_reference']);
 
         return redirect(route('dashboard', absolute: false));
     }
