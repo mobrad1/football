@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('teams', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('captain_id')->constrained('users')->cascadeOnDelete();
+            $table->unsignedBigInteger('captain_id')->nullable();
+            $table->integer('xp_remaining')->default(0);
+            $table->integer('xp_total')->default(0);
             $table->timestamps();
         });
     }
