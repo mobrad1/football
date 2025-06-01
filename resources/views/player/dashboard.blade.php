@@ -12,6 +12,18 @@
                 </div>
             </div>
             
+            @if(session('success'))
+                <div class="mb-4 p-3 bg-green-50 dark:bg-green-900 rounded text-green-800 dark:text-green-200 text-sm">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="mb-4 p-3 bg-red-50 dark:bg-red-900 rounded text-red-800 dark:text-red-200 text-sm">
+                    {{ session('error') }}
+                </div>
+            @endif
+            
             @if($player->status === 'free')
                 <form method="POST" action="{{ route('player.update-profile') }}" enctype="multipart/form-data">
                     @csrf
@@ -29,7 +41,8 @@
                     
                     <div class="mb-4">
                         <label for="position" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Position</label>
-                        <select id="position" name="position" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <select id="position" name="position" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <option value="">Select Position</option>
                             <option value="GK" {{ $player->position === 'GK' ? 'selected' : '' }}>Goalkeeper (GK)</option>
                             <option value="DEF" {{ $player->position === 'DEF' ? 'selected' : '' }}>Defender (DEF)</option>
                             <option value="MID" {{ $player->position === 'MID' ? 'selected' : '' }}>Midfielder (MID)</option>
@@ -42,15 +55,15 @@
                     
                     <div class="mb-4">
                         <label for="self_rating" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Self Rating (1-100)</label>
-                        <input type="number" id="self_rating" name="self_rating" min="1" max="100" value="{{ old('self_rating', $player->self_rating) }}" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <input type="number" id="self_rating" name="self_rating" min="1" max="100" value="{{ old('self_rating', $player->self_rating) }}" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                         @error('self_rating')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
                     </div>
                     
                     <div class="mb-4">
-                        <label for="xp_cost" class="block text-sm font-medium text-gray-700 dark:text-gray-300">XP Cost</label>
-                        <input type="number" id="xp_cost" name="xp_cost" min="1" max="100" value="{{ old('xp_cost', $player->xp_cost) }}" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <label for="xp_cost" class="block text-sm font-medium text-gray-700 dark:text-gray-300">XP Cost (1-200)</label>
+                        <input type="number" id="xp_cost" name="xp_cost" min="1" max="200" value="{{ old('xp_cost', $player->xp_cost) }}" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                         @error('xp_cost')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
@@ -121,19 +134,25 @@
                             </div>
                             
                             @if($offer->status === 'pending')
-                                <form method="POST" action="{{ route('player.respond-to-offer', $offer) }}" class="flex space-x-2 mt-3">
-                                    @csrf
-                                    @method('PUT')
+                                <div class="flex space-x-2 mt-3">
+                                    <form method="POST" action="{{ route('player.respond-to-offer', $offer) }}" class="flex-1">
+                                        @csrf
+                                        @method('PUT')
+                                        <input type="hidden" name="response" value="accept">
+                                        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded">
+                                            Accept
+                                        </button>
+                                    </form>
                                     
-                                    <input type="hidden" name="response" value="accept">
-                                    <button type="submit" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded">
-                                        Accept
-                                    </button>
-                                    
-                                    <button type="submit" formaction="{{ route('player.respond-to-offer', $offer) }}?response=reject" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded">
-                                        Reject
-                                    </button>
-                                </form>
+                                    <form method="POST" action="{{ route('player.respond-to-offer', $offer) }}" class="flex-1">
+                                        @csrf
+                                        @method('PUT')
+                                        <input type="hidden" name="response" value="reject">
+                                        <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded">
+                                            Reject
+                                        </button>
+                                    </form>
+                                </div>
                             @endif
                         </div>
                     @endforeach

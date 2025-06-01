@@ -38,7 +38,8 @@ Route::middleware('auth')->group(function () {
 // Player routes
 Route::middleware(['auth', 'player'])->group(function () {
     Route::get('/player/dashboard', [PlayerController::class, 'dashboard'])->name('player.dashboard');
-    Route::post('/player/offers/{offer}/respond', [PlayerController::class, 'respondToOffer'])->name('player.respond-offer');
+    Route::put('/player/profile', [PlayerController::class, 'updateProfile'])->name('player.update-profile');
+    Route::put('/player/offers/{offer}/respond', [PlayerController::class, 'respondToOffer'])->name('player.respond-to-offer');
 });
 
 // Captain routes
