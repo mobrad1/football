@@ -135,7 +135,7 @@
                     </div>
 
                     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                        @forelse($players->where('status', 'free')->where('payment_status', 'paid')->take(6) as $player)
+                        @forelse($players->where('status', 'free')->where('payment_status', 'paid')->all() as $player)
                             <div class="bg-gray-700/50 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden transform transition duration-500 hover:scale-105">
                                 <div class="p-6">
                                     <div class="flex items-center">
@@ -194,7 +194,7 @@
                         @endforelse
                     </div>
 
-                    @if($players->where('status', 'free')->count() > 6)
+                    {{-- @if($players->where('status', 'free')->count() > 6)
                         <div class="mt-10 text-center">
                             <a href="{{ route('login') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
                                 View All Players
@@ -203,7 +203,7 @@
                                 </svg>
                             </a>
                         </div>
-                    @endif
+                    @endif --}}
                 </div>
             </div>
 

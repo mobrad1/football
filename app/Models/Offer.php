@@ -10,24 +10,25 @@ class Offer extends Model
     use HasFactory;
 
     protected $fillable = [
-        'player_id',
         'captain_id',
-        'status',
+        'player_id',
+        'xp_cost',
+        'status', // 'pending', 'accepted', 'rejected'
     ];
 
     /**
-     * Get the player that received the offer.
-     */
-    public function player()
-    {
-        return $this->belongsTo(User::class, 'player_id');
-    }
-
-    /**
-     * Get the captain that sent the offer.
+     * Get the captain who made the offer.
      */
     public function captain()
     {
         return $this->belongsTo(User::class, 'captain_id');
+    }
+
+    /**
+     * Get the player who received the offer.
+     */
+    public function player()
+    {
+        return $this->belongsTo(User::class, 'player_id');
     }
 }

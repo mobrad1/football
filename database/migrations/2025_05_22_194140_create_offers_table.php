@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('offers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('player_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('captain_id')->constrained('users')->cascadeOnDelete();
-            $table->string('status')->default('pending'); // pending, accepted, rejected
+            $table->foreignId('captain_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('player_id')->constrained('users')->onDelete('cascade');
+            $table->integer('xp_cost');
+            $table->enum('status', ['pending', 'accepted', 'rejected'])->default('pending');
             $table->timestamps();
         });
     }

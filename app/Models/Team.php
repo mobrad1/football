@@ -12,6 +12,8 @@ class Team extends Model
     protected $fillable = [
         'name',
         'captain_id',
+        'xp_remaining',
+        'xp_total',
     ];
 
     /**
@@ -27,6 +29,6 @@ class Team extends Model
      */
     public function players()
     {
-        return $this->hasMany(User::class);
+        return $this->hasMany(User::class, 'team_id')->where('role', 'player');
     }
 }
