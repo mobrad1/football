@@ -10,8 +10,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     $players = User::where('role', 'player')
                   ->where('status', 'free')
-                  ->orderBy('self_rating', 'desc')
-                  ->take(12)
                   ->get();
     
     return view('welcome', compact('players'));
