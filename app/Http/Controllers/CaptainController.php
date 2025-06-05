@@ -58,16 +58,16 @@ class CaptainController extends Controller
         
         // Filter by rating range
         if ($request->has('min_rating') && $request->min_rating !== '') {
-            $query->where('self_rating', '>=', $request->min_rating);
+            $query->where('self_rating', '>=', (float) $request->min_rating);
         }
         
         if ($request->has('max_rating') && $request->max_rating !== '') {
-            $query->where('self_rating', '<=', $request->max_rating);
+            $query->where('self_rating', '<=', (float) $request->max_rating);
         }
         
         // Filter by XP cost range
         if ($request->has('max_xp_cost') && $request->max_xp_cost !== '') {
-            $query->where('xp_cost', '<=', $request->max_xp_cost);
+            $query->where('xp_cost', '<=', (int) $request->max_xp_cost);
         }
         
         $players = $query->orderBy('self_rating', 'desc')->paginate(20);
