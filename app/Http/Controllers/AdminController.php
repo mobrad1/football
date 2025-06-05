@@ -29,6 +29,12 @@ class AdminController extends Controller
                             ->take(5)
                             ->get();
         
+        // Get captains with their teams and team players
+        $captainsWithTeams = Team::with(['captain', 'players'])
+                                ->whereHas('captain')
+                                ->orderBy('created_at', 'desc')
+                                ->get();
+        
         return view('admin.dashboard', compact(
             'totalPlayers', 
             'totalCaptains', 
@@ -36,7 +42,8 @@ class AdminController extends Controller
             'draftedPlayers',
             'paidPlayers',
             'paidCaptains',
-            'recentPlayers'
+            'recentPlayers',
+            'captainsWithTeams'
         ));
     }
 
@@ -48,26 +55,48 @@ class AdminController extends Controller
         $query = User::where('role', 'player');
         
         // Apply filters
-        if ($request->has('search') && $request->search !== '') {
+        if ($request->filled('search')) {
             $query->where(function($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('email', 'like', '%' . $request->search . '%');
+                $searchTerm = $request->search;
+                $q->where('name', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('email', 'like', '%' . $searchTerm . '%');
             });
         }
         
-        if ($request->has('status') && $request->status !== '') {
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
         
-        if ($request->has('position') && $request->position !== '') {
+        if ($request->filled('position')) {
             $query->where('position', $request->position);
         }
         
-        if ($request->has('payment_status') && $request->payment_status !== '') {
+        if ($request->filled('payment_status')) {
             $query->where('payment_status', $request->payment_status);
         }
         
-        $players = $query->with('team')->orderBy('created_at', 'desc')->paginate(20);
+        // Add sorting options
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortDirection = $request->get('sort_direction', 'desc');
+        
+        // Validate sort parameters
+        $allowedSorts = ['created_at', 'name', 'self_rating', 'xp_cost', 'position'];
+        $allowedDirections = ['asc', 'desc'];
+        
+        if (!in_array($sortBy, $allowedSorts)) {
+            $sortBy = 'created_at';
+        }
+        
+        if (!in_array($sortDirection, $allowedDirections)) {
+            $sortDirection = 'desc';
+        }
+        
+        $query->orderBy($sortBy, $sortDirection);
+        
+        $players = $query->with('team')->paginate(20);
+        
+        // Preserve query parameters for pagination
+        $players->appends($request->query());
         
         return view('admin.players', compact('players'));
     }
@@ -278,5 +307,42 @@ class AdminController extends Controller
 
         return redirect()->back()
                         ->with('success', 'User deleted: ' . $userName);
+    }
+
+    /**
+     * Show a specific captain's team and players.
+     */
+    public function showCaptainTeam(User $captain)
+    {
+        if ($captain->role !== 'captain') {
+            return redirect()->route('admin.captains')
+                            ->with('error', 'User is not a captain.');
+        }
+
+        $team = Team::with(['players' => function($query) {
+            $query->orderBy('position')->orderBy('self_rating', 'desc');
+        }])->where('captain_id', $captain->id)->first();
+
+        if (!$team) {
+            return redirect()->route('admin.captains')
+                            ->with('error', 'Captain does not have a team.');
+        }
+
+        // Calculate team statistics
+        $totalPlayers = $team->players->count();
+        $totalXpUsed = $team->players->sum('xp_cost');
+        $averageRating = $team->players->avg('self_rating');
+        
+        // Group players by position
+        $playersByPosition = $team->players->groupBy('position');
+
+        return view('admin.captain-team', compact(
+            'captain', 
+            'team', 
+            'totalPlayers', 
+            'totalXpUsed', 
+            'averageRating',
+            'playersByPosition'
+        ));
     }
 } 

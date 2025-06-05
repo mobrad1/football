@@ -52,6 +52,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/admin/players', [AdminController::class, 'players'])->name('admin.players');
     Route::get('/admin/captains', [AdminController::class, 'captains'])->name('admin.captains');
+    Route::get('/admin/captains/{captain}/team', [AdminController::class, 'showCaptainTeam'])->name('admin.captain-team');
     
     // Registration routes
     Route::get('/admin/register-player', [AdminController::class, 'showRegisterPlayer'])->name('admin.register-player');
