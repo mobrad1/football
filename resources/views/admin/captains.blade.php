@@ -44,6 +44,11 @@
                                         <span class="text-sm text-gray-500">{{ $captain->created_at->format('M d, Y') }}</span>
                                     </div>
                                 </div>
+
+                                <div class="mt-4">
+                                    <a href="{{ route('admin.edit-captain', $captain) }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3">Edit</a>
+                                    <a href="{{ route('admin.captain-team', $captain) }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">View Team</a>
+                                </div>
                             </div>
                             @endforeach
                         </div>

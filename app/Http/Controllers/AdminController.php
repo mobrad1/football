@@ -345,4 +345,50 @@ class AdminController extends Controller
             'playersByPosition'
         ));
     }
+
+    /**
+     * Show form to edit captain details.
+     */
+    public function showEditCaptain(User $captain)
+    {
+        if ($captain->role !== 'captain') {
+            return redirect()->route('admin.captains')
+                            ->with('error', 'User is not a captain.');
+        }
+
+        return view('admin.edit-captain', compact('captain'));
+    }
+
+    /**
+     * Update captain details.
+     */
+    public function updateCaptain(Request $request, User $captain)
+    {
+        if ($captain->role !== 'captain') {
+            return redirect()->route('admin.captains')
+                            ->with('error', 'User is not a captain.');
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($captain->id)],
+            'xp_remaining' => 'required|integer|min:0|max:1000',
+            'coins' => 'required|integer|min:0|max:2000',
+            'payment_status' => ['required', Rule::in(['pending', 'paid', 'failed'])],
+        ]);
+
+        // Update captain details
+        $captain->update($validated);
+
+        // Update team XP if captain has a team
+        if ($captain->team) {
+            $captain->team->update([
+                'xp_remaining' => $validated['xp_remaining'],
+                'xp_total' => $validated['xp_remaining']
+            ]);
+        }
+
+        return redirect()->route('admin.captains')
+                        ->with('success', 'Captain details updated successfully.');
+    }
 } 

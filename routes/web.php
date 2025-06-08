@@ -54,6 +54,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/captains', [AdminController::class, 'captains'])->name('admin.captains');
     Route::get('/admin/captains/{captain}/team', [AdminController::class, 'showCaptainTeam'])->name('admin.captain-team');
     
+    // Captain management
+    Route::get('/admin/captains/{captain}/edit', [AdminController::class, 'showEditCaptain'])->name('admin.edit-captain');
+    Route::put('/admin/captains/{captain}', [AdminController::class, 'updateCaptain'])->name('admin.update-captain');
+    
     // Registration routes
     Route::get('/admin/register-player', [AdminController::class, 'showRegisterPlayer'])->name('admin.register-player');
     Route::post('/admin/register-player', [AdminController::class, 'registerPlayer']);
